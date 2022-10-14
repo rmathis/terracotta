@@ -374,18 +374,26 @@ public class AssessmentServiceImplTest {
         verify(questionService, never()).deleteById(anyLong());
     }
 
-    public void testVerifyNumSubmissionsLimitNull() {
-        assertDoesNotThrow(() -> verifySubmissionLimit.invoke(assessmentService, null, 1));
+    @Test
+    public void testVerifyNumSubmissionsLimitNullExistingAttemptNotExists() {
+        assertDoesNotThrow(() -> verifySubmissionLimit.invoke(assessmentService, null, 0));
     }
 
     @Test
-    public void testVerifyNumSubmissionsLimitZero() {
+    public void testVerifyNumSubmissionsLimitZeroIsUnlimited() {
         assertDoesNotThrow(() -> verifySubmissionLimit.invoke(assessmentService, 0, 1));
     }
 
     @Test
     public void testVerifyNumSubmissionsLessThanLimit() {
         assertDoesNotThrow(() -> verifySubmissionLimit.invoke(assessmentService, 2, 1));
+    }
+
+    @Test
+    public void testVerifyNumSubmissionsLimitNullExistingAttemptExists() {
+        InvocationTargetException e = assertThrows(InvocationTargetException.class, () -> verifySubmissionLimit.invoke(assessmentService, null, 2));
+        assertTrue(e.getCause() instanceof AssignmentAttemptException);
+        assertEquals(TextConstants.LIMIT_OF_SUBMISSIONS_REACHED, e.getCause().getMessage());
     }
 
     @Test
