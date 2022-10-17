@@ -60,6 +60,21 @@
         <v-divider />
       </v-col>
     </v-row>
+    <v-row v-if="cantTryAgainMessage">
+      <v-col>
+        <v-card
+          class="pt-5 px-5 mx-auto yellow lighten-5 rounded-lg"
+          outlined
+        >
+          <p class="pb-0" v-if="cantTryAgainMessage === 'MAX_NUMBER_ATTEMPTS_REACHED'">
+            You have reached the maximum number of attempts for this assignment.
+          </p>
+          <p class="pb-0" v-if="cantTryAgainMessage === 'WAIT_TIME_NOT_REACHED'">
+            Wait time not reached... You must wait a period of time before submitting again.
+          </p>
+        </v-card>
+      </v-col>
+    </v-row>
     <v-row v-if="readonly">
       <v-col>
         <v-card
@@ -272,6 +287,9 @@ export default {
     },
     canTryAgain() {
       return this.assignmentData ? this.assignmentData.retakeDetails.retakeAllowed : false;
+    },
+    cantTryAgainMessage() {
+      return this.assignmentData?.retakeDetails?.retakeNotAllowedReason;
     },
     selectedSubmissionDateSubmitted() {
       return moment(this.selectedSubmission?.dateSubmitted).format('MMMM Do YYYY hh:mm');
@@ -577,9 +595,10 @@ export default {
         const { data } = stepResponse;
         this.assignmentData = data;
 
-        const { submissions } = data;
+        const { retakeDetails } = data;
+        const { retakeAllowed } = retakeDetails;
         // const { retakeAllowed } = retakeDetails;
-        if (submissions.length > 0) {
+        if (!retakeAllowed) {
           this.readonly = true;
         } else {
           this.attempt();
