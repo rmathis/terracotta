@@ -596,12 +596,12 @@ export default {
         this.assignmentData = data;
 
         const { retakeDetails } = data;
-        const { retakeAllowed } = retakeDetails;
+        const { retakeAllowed, submissionAttemptsCount } = retakeDetails;
         // const { retakeAllowed } = retakeDetails;
-        if (!retakeAllowed) {
-          this.readonly = true;
-        } else {
+        if (retakeAllowed && submissionAttemptsCount === 0) {
           this.attempt();
+        } else {
+          this.readonly = true;
         }
 
       }else if(stepResponse?.status == 401) {
